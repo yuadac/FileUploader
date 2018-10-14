@@ -24,6 +24,7 @@ namespace FileUploader.Models
             CloudBlobContainer container = blobClient.GetContainerReference(storageConfig.FileContainerName);
             BlobContainerPermissions permissions = new BlobContainerPermissions();
             permissions.PublicAccess = BlobContainerPublicAccessType.Container;
+
             container.SetPermissionsAsync(permissions);
             container.CreateIfNotExistsAsync();
 
