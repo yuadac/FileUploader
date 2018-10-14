@@ -3,3 +3,7 @@
 ################################################################################
 
 *.lock
+/.vs/FileUploader/v15/Server/sqlite3
+/.vs/FileUploader/v15
+/.vs/FileUploader2/v15
+/.vs
