@@ -10,18 +10,27 @@ namespace FileUploader.Models
 {
     public class BlobStorage : IStorage
     {
-        private  AzureStorageConfig storageConfig;
+        private AzureStorageConfig storageConfig;
 
         public BlobStorage(IOptions<AzureStorageConfig> storageConfig)
         {
             this.storageConfig = storageConfig.Value;
         }
 
-        public Task Initialize()
+        public async Task<Task> Initialize()
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConfig.ConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(storageConfig.FileContainerName);
+            BlobContainerPermissions permissions = await container.GetPermissionsAsync();
+            permissions.PublicAccess = BlobContainerPublicAccessType.Container;
+            await container.SetPermissionsAsync(permissions);
+            await container.CreateIfNotExistsAsync();
+
+            container = blobClient.GetContainerReference(storageConfig.AnalyzedFileContainerName);
+            await container.CreateIfNotExistsAsync();
+            await container.SetPermissionsAsync(permissions);
+
             return container.CreateIfNotExistsAsync();
         }
 
@@ -29,7 +38,7 @@ namespace FileUploader.Models
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConfig.ConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference(storageConfig.FileContainerName);            
+            CloudBlobContainer container = blobClient.GetContainerReference(storageConfig.FileContainerName);
             CloudBlockBlob blockBlob = container.GetBlockBlobReference(name);
             return blockBlob.UploadFromStreamAsync(fileStream);
         }
