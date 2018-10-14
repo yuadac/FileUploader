@@ -17,13 +17,15 @@ namespace FileUploader.Models
             this.storageConfig = storageConfig.Value;
         }
 
-        public async Task<Task> Initialize()
+        public Task Initialize()
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConfig.ConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(storageConfig.FileContainerName);
-            BlobContainerPermissions permissions = new BlobContainerPermissions();
-            permissions.PublicAccess = BlobContainerPublicAccessType.Container;
+            BlobContainerPermissions permissions = new BlobContainerPermissions
+            {
+                PublicAccess = BlobContainerPublicAccessType.Container
+            };
 
             container.SetPermissionsAsync(permissions);
             container.CreateIfNotExistsAsync();
